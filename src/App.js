@@ -6,6 +6,11 @@ import useQuizReducer from './useReducer';
 import Loader from './component/Loader';
 import Error from './component/Error';
 import Question from './component/Question';
+import NextButton from './component/NextButton';
+import Progress from './component/Progress';
+import Footer from './component/Footer';
+import Timer from './component/Timer';
+import CompleteScreen from './component/CompleteScreen';
 
 const App = () => {
   const { state, dispatch } = useQuizReducer();
@@ -14,6 +19,7 @@ const App = () => {
   const category = state.category;
   const difficulty = state.difficulty;
   const numQuestions = state.numQuestions;
+
   console.log(category, difficulty, numQuestions);
   const Url = `https://opentdb.com/api.php?amount=${numQuestions}&category=${category}&difficulty=${difficulty}&type=multiple`;
 
@@ -44,12 +50,14 @@ const App = () => {
   }, [category, difficulty, numQuestions, dispatch]); // Remove `Url` from dependencies
 
   // Shuffle the options with correct answer
-  const shuffleOptions = (options, correctAnswer) => {
-    const shuffledOptions = [...options, correctAnswer];
-    return shuffledOptions.sort(() => Math.random() - 1);
-  };
+  // const shuffleOptions = (options, correctAnswer) => {
+  //   const shuffledOptions = [...options];
+  //   const idx = Math.floor(Math.random() * shuffledOptions.length);
+  //   shuffledOptions.splice(idx, 0, correctAnswer);
+  //   return shuffledOptions;
+  // };
   return (
-    <div className="App">
+    <div className="app">
       <Header />
       <main>
         {state.quizStatus === 'loading' && <Loader />}
@@ -61,12 +69,16 @@ const App = () => {
         )}
         {state.quizStatus === 'ongoing' && (
           <>
+            <Progress state={state} />
             <Question
+              key={state.currentQuestionIndex}
+              state={state}
               question={state.questions[state.currentQuestionIndex].question}
-              options={shuffleOptions(
-                state.questions[state.currentQuestionIndex].incorrect_answers,
-                state.questions[state.currentQuestionIndex].correct_answer
-              )}
+              options={[
+                ...state.questions[state.currentQuestionIndex]
+                  .incorrect_answers,
+                state.questions[state.currentQuestionIndex].correct_answer,
+              ]}
               correctAnswer={
                 state.questions[state.currentQuestionIndex].correct_answer
               }
@@ -77,10 +89,16 @@ const App = () => {
               userAnswer={state.userAnswer || null}
               dispatch={dispatch}
             />
+            <Footer>
+              <NextButton dispatch={dispatch} state={state} />
+              <Timer state={state} dispatch={dispatch} />
+            </Footer>
           </>
         )}
+        {state.quizStatus === 'completed' && <CompleteScreen state={state} />}
       </main>
     </div>
   );
 };
+
 export default App;

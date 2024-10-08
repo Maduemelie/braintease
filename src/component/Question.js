@@ -1,3 +1,4 @@
+import StartScreen from './StartScreen';
 export default function Question({
   question,
   options,
@@ -5,14 +6,14 @@ export default function Question({
   correctAnswerIndex,
   dispatch,
   userAnswer,
+  state,
 }) {
-  // console.log(correctAnswerIndex, userAnswer);
   const hasAnswered = userAnswer !== null;
   return (
     <div className="question-container">
       <div className="question">{question}</div>
       <div className="options">
-        {options.map((option, index) => (
+        {options.sort().map((option, index) => (
           <button
             className={`option ${
               hasAnswered && option === userAnswer ? 'selected' : ''

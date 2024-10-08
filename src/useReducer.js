@@ -1,6 +1,6 @@
 // useReducer.js
 import { useReducer } from 'react';
-
+const timeForEachQuestion = 60;
 const initialState = {
   questions: [],
   currentQuestionIndex: 0,
@@ -8,7 +8,7 @@ const initialState = {
   score: 0,
   quizStatus: 'loading', // 'loading', 'ready', 'ongoing', 'complete', 'error'
   totalQuestions: 0,
-  feedback: '',
+  timeRemaining: null,
   category: '9',
   difficulty: 'easy',
   numQuestions: 10,
@@ -35,6 +35,7 @@ const quizReducer = (state = initialState, action) => {
         ...state,
         quizStatus: 'ongoing',
         totalQuestions: state.questions.length,
+        timeRemaining: timeForEachQuestion * state.questions.length,
       };
     case 'SUBMIT_ANSWER':
       const question = state.questions[state.currentQuestionIndex];
@@ -47,10 +48,18 @@ const quizReducer = (state = initialState, action) => {
         score: isCorrect ? state.score + 1 : state.score,
       };
 
-    case 'UPDATE_SCORE':
-      return { ...state, score: action.score };
+    case 'NEXT_QUESTION':
+      return {
+        ...state,
+        currentQuestionIndex: state.currentQuestionIndex + 1,
+        userAnswer: null,
+        feedback: '',
+      }; // userAnswer: action.score };
+    case 'UPDATE_TIMER':
+      return { ...state, timeRemaining: state.timeRemaining - 1 };
     case 'COMPLETE_QUIZ':
       return { ...state, quizStatus: 'completed' };
+
     case 'RESET_QUIZ':
       return initialState;
     case 'SET_FEEDBACK':
